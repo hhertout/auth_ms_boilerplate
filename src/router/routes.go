@@ -16,5 +16,7 @@ func Serve() *gin.Engine {
 	r.POST("/api/user/new", c.CreateUser)
 	r.DELETE("/api/user/delete", c.SoftDeleteUser)
 
+	r.POST("/api/login", c.Login)
+
 	return r
 }

@@ -31,7 +31,7 @@ func (b BaseController) CreateUser(c *gin.Context) {
 	user, err := b.repository.FindUserByEmail(body.Email)
 	if err != nil || user.Email != "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "User doesn't exist",
+			"message": "User already exist",
 		})
 		return
 	}
