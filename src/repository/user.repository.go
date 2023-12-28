@@ -7,7 +7,10 @@ type User struct {
 }
 
 func (r Repository) CreateUser(email string, password string) (int, error) {
-	insert, err := r.dbPool.Exec(`INSERT INTO "user" (email, password) VALUES ($1, $2)`, email, password)
+	insert, err := r.dbPool.Exec(`
+		INSERT INTO "user" (email, password) 
+		VALUES ($1, $2)
+	`, email, password)
 	if err != nil {
 		return 0, err
 	}
@@ -21,7 +24,12 @@ func (r Repository) CreateUser(email string, password string) (int, error) {
 
 func (r Repository) FindUserByEmail(email string) (User, error) {
 	var user User
-	rows, err := r.dbPool.Query(`SELECT id, email, password FROM "user" WHERE email=$1 LIMIT 1`, email)
+	rows, err := r.dbPool.Query(`
+		SELECT id, email, password 
+		FROM "user" 
+		WHERE email=$1 AND deleted_at is null 
+		LIMIT 1
+	`, email)
 	if err != nil {
 		return user, err
 	}
@@ -35,4 +43,22 @@ func (r Repository) FindUserByEmail(email string) (User, error) {
 	}
 
 	return user, nil
+}
+
+func (r Repository) SoftDelete(email string) (int, error) {
+	res, err := r.dbPool.Exec(`
+		UPDATE "user"
+		SET deleted_at=NOW()
+		WHERE email=$1;
+	`, email)
+
+	if err != nil {
+		return 0, err
+	}
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return int(affected), nil
 }
