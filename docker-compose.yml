@@ -6,11 +6,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:4500/ping | grep -q '\"message\": *\"pong\"'" ]
+      interval: 300s
+      timeout: 10s
+      retries: 3
     env_file:
       - ./.env
       - ./db.env
     ports:
-      - "4545:4545"
+      - "4500:4500"
     volumes:
       - .:/app
 
@@ -20,7 +26,7 @@ services:
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d blueprint -U postgres" ]
-      interval: 5s
+      interval: 30s
       timeout: 5s
       retries: 10
     env_file:

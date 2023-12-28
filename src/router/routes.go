@@ -13,6 +13,7 @@ func Serve() *gin.Engine {
 	r.Use(middlewares.CORSMiddleware())
 
 	r.GET("/ping", c.Ping)
+	r.POST("/api/user/new", c.CreateUser)
 
 	return r
 }

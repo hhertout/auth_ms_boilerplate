@@ -7,21 +7,21 @@ import (
 	"net/http"
 )
 
-type ApiController struct {
+type BaseController struct {
 	repository *repository.Repository
 }
 
-func NewBaseController() *ApiController {
+func NewBaseController() *BaseController {
 	r, err := repository.NewRepository(nil)
 	if err != nil {
 		log.Fatalln("Failed to connect to DB")
 	}
-	return &ApiController{
+	return &BaseController{
 		repository: r,
 	}
 }
 
-func (a ApiController) Ping(c *gin.Context) {
+func (b BaseController) Ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
 	})
