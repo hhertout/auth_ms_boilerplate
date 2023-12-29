@@ -35,7 +35,7 @@ migration-generate:
 	@echo "Generate migration in ./migrations"
 	@touch migrations/`date '+%Y-%m-%d_%s'`_migration.sql
 
-generate-salt:
+secret-key:
 	@node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
 
 # Live Reload

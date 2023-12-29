@@ -25,3 +25,4 @@ tmp/
 # .env file
 .env
 db.env
+*.env

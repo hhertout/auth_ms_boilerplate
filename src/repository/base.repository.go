@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"auth_ms/cmd/database"
+	"auth_ms/src/database"
 	"database/sql"
 )
 
