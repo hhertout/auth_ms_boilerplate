@@ -9,7 +9,10 @@ import (
 )
 
 func TestGenerateJwtToken(t *testing.T) {
-	os.Setenv("JWT_SECRET", "my_valid_secret_key")
+	err := os.Setenv("JWT_SECRET", "my_valid_secret_key")
+	if err != nil {
+		t.Error("failed to configure env")
+	}
 	defer os.Unsetenv("JWT_SECRET")
 
 	user := "testuser"
@@ -22,7 +25,10 @@ func TestGenerateJwtToken(t *testing.T) {
 		t.Error("Expected non-empty token, got empty string")
 	}
 
-	os.Setenv("JWT_SECRET", "")
+	err = os.Setenv("JWT_SECRET", "")
+	if err != nil {
+		t.Error("failed to configure env")
+	}
 	emptyKeyToken, emptyKeyErr := service.GenerateJwtToken(user)
 	if emptyKeyErr == nil {
 		t.Error("Expected error due to empty JWT_SECRET, got nil")
@@ -31,7 +37,10 @@ func TestGenerateJwtToken(t *testing.T) {
 		t.Error("Expected empty token, got non-empty string")
 	}
 
-	os.Setenv("JWT_SECRET", "my_valid_secret_key")
+	err = os.Setenv("JWT_SECRET", "my_valid_secret_key")
+	if err != nil {
+		t.Error("failed to configure env")
+	}
 	expiresAt := time.Now().Unix() + 3600*24*20
 	futureExpiresToken, futureExpiresErr := service.GenerateJwtToken(user)
 	if futureExpiresErr != nil {
@@ -52,7 +61,10 @@ func TestGenerateJwtToken(t *testing.T) {
 }
 
 func TestVerifyJwtToken(t *testing.T) {
-	os.Setenv("JWT_SECRET", "my_valid_secret_key")
+	err := os.Setenv("JWT_SECRET", "my_valid_secret_key")
+	if err != nil {
+		t.Error("failed to configure env")
+	}
 	defer os.Unsetenv("JWT_SECRET")
 
 	user := "testuser"
@@ -67,7 +79,10 @@ func TestVerifyJwtToken(t *testing.T) {
 		t.Error("Expected valid token, got invalid")
 	}
 
-	os.Setenv("JWT_SECRET", "")
+	err = os.Setenv("JWT_SECRET", "")
+	if err != nil {
+		t.Error("failed to configure env")
+	}
 	validEmptyKey, errEmptyKey := service.VerifyJwtToken(token)
 	if errEmptyKey == nil {
 		t.Error("Expected error due to empty JWT_SECRET, got nil")
