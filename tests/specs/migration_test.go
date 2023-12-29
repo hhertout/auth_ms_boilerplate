@@ -6,6 +6,15 @@ import (
 	"testing"
 )
 
+func TestNewMigration(t *testing.T) {
+	basePath := "/path/to/base"
+	m := migrations.NewMigration(basePath)
+
+	if m == nil {
+		t.Error("Expected non-nil value for Migration, got nil")
+	}
+}
+
 func TestGetMigrationFiles(t *testing.T) {
 	m := migrations.NewMigration("")
 

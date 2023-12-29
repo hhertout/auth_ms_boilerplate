@@ -23,20 +23,21 @@ func NewMigration(basePath string) *Migration {
 	}
 }
 
-func (m *Migration) Migrate() error {
+func (m *Migration) Migrate(filename string) error {
 	db, err := database.Connect()
 	if err != nil {
 		return errors.New("failed to connect to db")
 	}
 	m.dbPool = db.DbPool
 
-	if err := m.migrateFromFile("mail.sql"); err != nil {
+	if err := m.migrateFromFile(filename); err != nil {
 		return err
 	}
 
 	if err = m.dbPool.Close(); err != nil {
 		return errors.New("failed to close db connection after executing migrations")
 	}
+
 	return nil
 }
 
@@ -67,6 +68,7 @@ func (m *Migration) MigrateAll() error {
 	if err = m.dbPool.Close(); err != nil {
 		log.Println("Failed to close db connection after migration")
 	}
+
 	return nil
 }
 
