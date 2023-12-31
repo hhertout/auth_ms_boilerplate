@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"auth_ms/src/repository"
 	"auth_ms/src/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -52,6 +54,56 @@ func (b BaseController) CreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"user": body.Email,
+	})
+}
+
+func (b BaseController) UpdateUserPassword(c *gin.Context) {
+	type Body struct {
+		Password string `json:"password"`
+	}
+	var body Body
+
+	err := c.BindJSON(&body)
+	if err != nil || body.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Bad Request",
+		})
+		return
+	}
+
+	user, exist := c.Get("user")
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Unauthorized",
+		})
+		return
+	}
+
+	u, ok := user.(repository.User)
+	fmt.Println(u)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Unauthorized",
+		})
+		return
+	}
+
+	encryptPassword, err := service.HashPassword(body.Password)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+
+	_, err = b.repository.UpdatePassword(u.Id, encryptPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Password update successfully",
 	})
 }
 

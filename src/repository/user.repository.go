@@ -45,6 +45,23 @@ func (r Repository) FindUserByEmail(email string) (User, error) {
 	return user, nil
 }
 
+func (r Repository) UpdatePassword(id string, password string) (int, error) {
+	res, err := r.dbPool.Exec(`
+		UPDATE "user" 
+		SET password=$1 
+		where id=$2
+	`, password, id)
+	if err != nil {
+		return 0, err
+	}
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return int(affected), nil
+}
+
 func (r Repository) SoftDelete(email string) (int, error) {
 	res, err := r.dbPool.Exec(`
 		UPDATE "user"

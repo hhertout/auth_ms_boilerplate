@@ -63,7 +63,7 @@ func (b BaseController) CheckAuthCookie(c *gin.Context) {
 		return
 	}
 
-	valid, err := service.VerifyJwtToken(cookie)
+	valid, _, err := service.VerifyJwtToken(cookie)
 	if err != nil || !valid {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "Unauthorized",
@@ -88,7 +88,7 @@ func (b BaseController) CheckAuthHeader(c *gin.Context) {
 	tokenSplit := strings.Split(tokenString, "bearer ")
 	strings.TrimSpace(tokenSplit[1])
 
-	valid, err := service.VerifyJwtToken(tokenSplit[1])
+	valid, _, err := service.VerifyJwtToken(tokenSplit[1])
 	if err != nil || !valid {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "Unauthorized",

@@ -60,10 +60,10 @@ func GenerateJwtToken(user string) (string, error) {
 	return signedToken, nil
 }
 
-func VerifyJwtToken(tokenString string) (bool, error) {
+func VerifyJwtToken(tokenString string) (bool, jwt.RegisteredClaims, error) {
 	key := os.Getenv("JWT_SECRET")
 	if key == "" {
-		return false, errors.New("env variable JWT_SECRET is not set")
+		return false, jwt.RegisteredClaims{}, errors.New("env variable JWT_SECRET is not set")
 	}
 
 	var claims jwt.RegisteredClaims
@@ -72,10 +72,10 @@ func VerifyJwtToken(tokenString string) (bool, error) {
 		return []byte(key), nil
 	})
 	if err != nil {
-		return false, err
+		return false, jwt.RegisteredClaims{}, err
 	}
 
 	valid := token.Valid
 
-	return valid, nil
+	return valid, claims, nil
 }
