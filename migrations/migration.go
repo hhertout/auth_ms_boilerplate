@@ -48,8 +48,7 @@ func (m *Migration) MigrateAll() error {
 	}
 	m.dbPool = db.DbPool
 
-	migrationFiles, err := m.GetMigrationFiles("/")
-	log.Println(migrationFiles)
+	migrationFiles, err := m.GetMigrationFiles(m.basePath)
 	if err != nil {
 		return errors.New("failed to retrieve migration files")
 	}
