@@ -70,7 +70,7 @@ func TestVerifyJwtToken(t *testing.T) {
 	user := "testuser"
 	token, _ := service.GenerateJwtToken(user)
 
-	valid, err := service.VerifyJwtToken(token)
+	valid, _, err := service.VerifyJwtToken(token)
 	if err != nil {
 		t.Errorf("Unexpected error verifying token: %s", err)
 	}
@@ -83,7 +83,7 @@ func TestVerifyJwtToken(t *testing.T) {
 	if err != nil {
 		t.Error("failed to configure env")
 	}
-	validEmptyKey, errEmptyKey := service.VerifyJwtToken(token)
+	validEmptyKey, _, errEmptyKey := service.VerifyJwtToken(token)
 	if errEmptyKey == nil {
 		t.Error("Expected error due to empty JWT_SECRET, got nil")
 	}
@@ -92,7 +92,7 @@ func TestVerifyJwtToken(t *testing.T) {
 	}
 
 	invalidToken := "invalidtoken"
-	validInvalidToken, errInvalidToken := service.VerifyJwtToken(invalidToken)
+	validInvalidToken, _, errInvalidToken := service.VerifyJwtToken(invalidToken)
 	if errInvalidToken == nil {
 		t.Error("Expected error due to invalid token, got nil")
 	}
