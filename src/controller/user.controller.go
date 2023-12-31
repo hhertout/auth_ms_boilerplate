@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"auth_ms/src/httpRequest"
 	"auth_ms/src/repository"
 	"auth_ms/src/service"
 	"fmt"
@@ -80,7 +81,6 @@ func (b BaseController) UpdateUserPassword(c *gin.Context) {
 	}
 
 	u, ok := user.(repository.User)
-	fmt.Println(u)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "Unauthorized",
@@ -102,8 +102,71 @@ func (b BaseController) UpdateUserPassword(c *gin.Context) {
 		return
 	}
 
+	if err = httpRequest.SendPasswordUpdatedMail(u.Email); err != nil {
+		log.Printf("Failed to send mail : %s", err)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Password update successfully",
+	})
+}
+
+func (b BaseController) ReinitializePassword(c *gin.Context) {
+	type Body struct {
+		Email string `json:"email"`
+	}
+	var body Body
+
+	if err := c.BindJSON(&body); err != nil || body.Email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request",
+		})
+		return
+	}
+
+	user, err := b.repository.FindUserByEmail(body.Email)
+	if err != nil || user.Email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "User doesn't exist",
+		})
+		return
+	}
+
+	newPassword, err := service.GenerateRandomPassword()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Internal server error",
+		})
+		return
+	}
+
+	hashPassword, err := service.HashPassword(newPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Internal server error",
+		})
+		return
+	}
+
+	_, err = b.repository.UpdatePassword(user.Id, hashPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Internal server error",
+		})
+		return
+	}
+
+	fmt.Println(newPassword)
+
+	if err = httpRequest.SendReinitialisationMail(user.Email, newPassword); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to send mail",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "The password has been reset. An email with the new password has been sent to the email address of this account",
 	})
 }
 
