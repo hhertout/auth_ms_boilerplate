@@ -15,8 +15,10 @@ func Serve() *gin.Engine {
 	r.GET("/ping", c.Ping)
 
 	r.POST("/api/user/new", c.CreateUser)
-	r.DELETE("/api/user/delete", c.SoftDeleteUser)
 	r.POST("/api/login", c.Login)
+	r.DELETE("/api/user/delete", c.SoftDeleteUser)
+	r.PATCH("/user/password/update", middlewares.AuthenticationCookieMiddleware, c.UpdateUserPassword)
+	r.POST("/user/password/reinitialise", c.ReinitializePassword)
 
 	// Cookie methods
 	r.GET("/api/auth/check-cookie", c.CheckAuthCookie)

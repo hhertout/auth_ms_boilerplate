@@ -14,3 +14,8 @@ func ValidateUserCreationData(email string, password string) error {
 
 	return nil
 }
+
+func ValidatePassword(password string) error {
+	// TODO
+	return nil
+}
