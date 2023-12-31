@@ -4,7 +4,6 @@ import (
 	"auth_ms/src/httpRequest"
 	"auth_ms/src/repository"
 	"auth_ms/src/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -155,8 +154,6 @@ func (b BaseController) ReinitializePassword(c *gin.Context) {
 		})
 		return
 	}
-
-	fmt.Println(newPassword)
 
 	if err = httpRequest.SendReinitialisationMail(user.Email, newPassword); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
