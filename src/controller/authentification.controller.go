@@ -4,7 +4,12 @@ import (
 	"auth_ms/src/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
+
+type ResponseWithUser struct {
+	Email string `json:"email"`
+}
 
 func (b BaseController) Login(c *gin.Context) {
 	type Body struct {
@@ -36,7 +41,6 @@ func (b BaseController) Login(c *gin.Context) {
 		return
 	}
 
-	// logic return goes here
 	token, err := service.GenerateJwtToken(user.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -45,15 +49,12 @@ func (b BaseController) Login(c *gin.Context) {
 		return
 	}
 
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", token, 3600*24*20, "", "", false, true)
-	c.JSON(http.StatusOK, gin.H{
-		"message": "successfully logged",
-		"user":    user.Email,
-	})
+	// Choose one - response with cookie, response with token in header
+	// Choose responseWithCookie(c *gin.Context, token string, user ResponseWithUser) or responseWithAuthHeader(c *gin.Context, token string, user ResponseWithUser)
+	b.responseWithCookie(c, token, ResponseWithUser{user.Email})
 }
 
-func (b BaseController) CheckToken(c *gin.Context) {
+func (b BaseController) CheckAuthCookie(c *gin.Context) {
 	cookie, err := c.Cookie("Authorization")
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -72,5 +73,47 @@ func (b BaseController) CheckToken(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Authorized",
+	})
+}
+
+func (b BaseController) CheckAuthHeader(c *gin.Context) {
+	tokenString := c.GetHeader("Authorization")
+	if tokenString == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Unauthorized",
+		})
+		return
+	}
+
+	tokenSplit := strings.Split(tokenString, "bearer ")
+	strings.TrimSpace(tokenSplit[1])
+
+	valid, err := service.VerifyJwtToken(tokenSplit[1])
+	if err != nil || !valid {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Unauthorized",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Authorized",
+	})
+}
+
+func (b BaseController) responseWithCookie(c *gin.Context, token string, user ResponseWithUser) {
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("Authorization", token, 3600*24*20, "", "", false, true)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "successfully logged",
+		"user":    user,
+	})
+}
+
+func (b BaseController) responseWithToken(c *gin.Context, token string, user ResponseWithUser) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "successfully logged",
+		"token":   token,
+		"user":    user,
 	})
 }

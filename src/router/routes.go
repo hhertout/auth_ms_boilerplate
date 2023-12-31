@@ -18,7 +18,11 @@ func Serve() *gin.Engine {
 	r.DELETE("/api/user/delete", c.SoftDeleteUser)
 	r.POST("/api/login", c.Login)
 
-	r.GET("/api/auth/check-token", c.CheckToken)
+	// Cookie methods
+	r.GET("/api/auth/check-cookie", c.CheckAuthCookie)
+
+	// Token methods
+	r.GET("/api/auth/check-token", c.CheckAuthHeader)
 
 	return r
 }
