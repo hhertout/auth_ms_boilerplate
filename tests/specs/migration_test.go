@@ -16,7 +16,7 @@ func TestNewMigration(t *testing.T) {
 }
 
 func TestGetMigrationFiles(t *testing.T) {
-	m := migrations.NewMigration("")
+	m := migrations.NewMigration("/")
 
 	workingDir, _ := os.Getwd()
 

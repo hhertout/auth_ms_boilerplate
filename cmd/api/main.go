@@ -17,7 +17,7 @@ func main() {
 		}
 	}
 
-	m := migrations.NewMigration("")
+	m := migrations.NewMigration("/")
 	if err := m.MigrateAll(); err != nil {
 		log.Println(err)
 		return
