@@ -17,10 +17,12 @@ func main() {
 		}
 	}
 
-	m := migrations.NewMigration("/")
-	if err := m.MigrateAll(); err != nil {
-		log.Println(err)
-		return
+	if os.Getenv("MIGRATION_ENABLE") != "false" {
+		m := migrations.NewMigration("/")
+		if err := m.MigrateAll(); err != nil {
+			log.Println(err)
+			return
+		}
 	}
 
 	r := router.Serve()
